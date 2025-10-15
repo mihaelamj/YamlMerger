@@ -1,0 +1,22 @@
+  /auth/login:
+    post:
+      operationId: loginUser
+      tags:
+        - auth
+      summary: User login
+      description: Authenticate user and receive access token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Successful authentication
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          description: Invalid credentials

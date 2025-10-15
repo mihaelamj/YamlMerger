@@ -1,0 +1,16 @@
+      LoginRequest:
+        type: object
+        required:
+          - username
+          - password
+        properties:
+          username:
+            type: string
+            example: emilys
+          password:
+            type: string
+            format: password
+            example: emilyspass
+          expiresInMins:
+            type: integer
+            default: 60

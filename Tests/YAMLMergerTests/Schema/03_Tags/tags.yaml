@@ -1,0 +1,14 @@
+  - name: auth
+    description: Authentication operations
+  - name: users
+    description: User management operations
+  - name: posts
+    description: Post management operations
+  - name: products
+    description: Product catalog operations
+  - name: carts
+    description: Shopping cart operations
+  - name: todos
+    description: Todo management operations
+  - name: comments
+    description: Comment operations

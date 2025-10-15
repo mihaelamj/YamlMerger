@@ -1,0 +1,39 @@
+      User:
+        type: object
+        properties:
+          id:
+            type: integer
+          firstName:
+            type: string
+          lastName:
+            type: string
+          maidenName:
+            type: string
+          age:
+            type: integer
+          gender:
+            type: string
+          email:
+            type: string
+            format: email
+          phone:
+            type: string
+          username:
+            type: string
+          birthDate:
+            type: string
+            format: date
+          image:
+            type: string
+            format: uri
+          address:
+            type: object
+            properties:
+              address:
+                type: string
+              city:
+                type: string
+              state:
+                type: string
+              postalCode:
+                type: string

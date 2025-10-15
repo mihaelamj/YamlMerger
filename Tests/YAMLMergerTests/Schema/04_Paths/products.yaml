@@ -1,0 +1,67 @@
+  /products:
+    get:
+      operationId: getAllProducts
+      tags:
+        - products
+      summary: Get all products
+      description: Retrieve a list of all products
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 30
+        - name: skip
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  products:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Product'
+                  total:
+                    type: integer
+    post:
+      operationId: createProduct
+      tags:
+        - products
+      summary: Add a new product
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Product'
+      responses:
+        '201':
+          description: Product created successfully
+  /products/{id}:
+    get:
+      operationId: getProductById
+      tags:
+        - products
+      summary: Get a single product
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'

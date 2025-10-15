@@ -1,0 +1,46 @@
+  /comments:
+    get:
+      operationId: getAllComments
+      tags:
+        - comments
+      summary: Get all comments
+      description: Retrieve a list of all comments
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 30
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  comments:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Comment'
+                  total:
+                    type: integer
+  /comments/{id}:
+    get:
+      operationId: getCommentById
+      tags:
+        - comments
+      summary: Get a single comment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'

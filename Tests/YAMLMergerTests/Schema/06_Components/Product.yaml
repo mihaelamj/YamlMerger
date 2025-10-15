@@ -1,0 +1,32 @@
+      Product:
+        type: object
+        properties:
+          id:
+            type: integer
+          title:
+            type: string
+          description:
+            type: string
+          category:
+            type: string
+          price:
+            type: number
+            format: float
+          discountPercentage:
+            type: number
+            format: float
+          rating:
+            type: number
+            format: float
+          stock:
+            type: integer
+          brand:
+            type: string
+          thumbnail:
+            type: string
+            format: uri
+          images:
+            type: array
+            items:
+              type: string
+              format: uri

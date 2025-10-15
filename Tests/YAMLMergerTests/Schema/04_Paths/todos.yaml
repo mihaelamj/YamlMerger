@@ -1,0 +1,62 @@
+  /todos:
+    get:
+      operationId: getAllTodos
+      tags:
+        - todos
+      summary: Get all todos
+      description: Retrieve a list of all todos
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 30
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  todos:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Todo'
+                  total:
+                    type: integer
+    post:
+      operationId: createTodo
+      tags:
+        - todos
+      summary: Add a new todo
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Todo'
+      responses:
+        '201':
+          description: Todo created successfully
+  /todos/{id}:
+    get:
+      operationId: getTodoById
+      tags:
+        - todos
+      summary: Get a single todo
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Todo'

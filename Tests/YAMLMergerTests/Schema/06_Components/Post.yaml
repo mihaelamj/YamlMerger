@@ -1,0 +1,24 @@
+      Post:
+        type: object
+        properties:
+          id:
+            type: integer
+          title:
+            type: string
+          body:
+            type: string
+          tags:
+            type: array
+            items:
+              type: string
+          reactions:
+            type: object
+            properties:
+              likes:
+                type: integer
+              dislikes:
+                type: integer
+          views:
+            type: integer
+          userId:
+            type: integer

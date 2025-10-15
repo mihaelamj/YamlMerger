@@ -1,0 +1,46 @@
+  /carts:
+    get:
+      operationId: getAllCarts
+      tags:
+        - carts
+      summary: Get all carts
+      description: Retrieve a list of all shopping carts
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 30
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  carts:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Cart'
+                  total:
+                    type: integer
+  /carts/{id}:
+    get:
+      operationId: getCartById
+      tags:
+        - carts
+      summary: Get a single cart
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cart'
