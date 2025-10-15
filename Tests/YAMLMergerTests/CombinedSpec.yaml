@@ -482,8 +482,8 @@ webhooks:
           description: Webhook received successfully
         '400':
           description: Bad request
-
-schemas:
+components:
+  schemas:
 
 
       AuthResponse:

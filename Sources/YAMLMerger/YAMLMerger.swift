@@ -33,7 +33,14 @@ public struct YAMLMerger {
     }
 
     private func cleanedContent(_ text: String) -> String {
-        let regex = try! NSRegularExpression(pattern: "(\\n\\s*){2,}", options: [])
+        let pattern = "(\\n\\s*){2,}"
+        let regex: NSRegularExpression
+        do {
+            regex = try NSRegularExpression(pattern: pattern, options: [])
+        } catch {
+            // If the regex pattern fails to compile, return the original text unchanged.
+            return text
+        }
         let range = NSRange(location: 0, length: text.utf16.count)
         return regex.stringByReplacingMatches(in: text, options: [], range: range, withTemplate: "\n\n")
     }
@@ -53,7 +60,7 @@ public struct YAMLMerger {
                 if !isFirstFile {
                     output += "\n" // only between files
                 }
-                output += content
+                output += cleanedContent(content)
                 isFirstFile = false
             }
         }

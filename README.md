@@ -303,8 +303,25 @@ Links to external documentation.
 ```yaml
 # __externalDocs.yaml
 externalDocs:
+
+# docs.yaml
   description: DummyJSON Documentation
   url: https://dummyjson.com/docs
+```
+
+The `externalDocs` field provides links to additional documentation outside the API spec. It can be used at:
+- **Global level** (as shown above) - links to overall API documentation
+- **Operation level** - links to specific endpoint guides
+
+Tools like Swagger UI render these links prominently for easy access to tutorials, guides, and examples.
+
+**Try it:**
+```bash
+# View the external documentation
+curl https://dummyjson.com/docs
+
+# Or open in browser
+open https://dummyjson.com/docs
 ```
 
 ## Usage

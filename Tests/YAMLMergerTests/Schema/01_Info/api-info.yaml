@@ -1,0 +1,9 @@
+  title: OpenAPI Generation Demo
+  version: 1.0.0
+  description: Demonstration of OpenAPI specification generation using YAMLMerger
+  contact:
+    name: API Support
+    email: support@example.com
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
