@@ -1,0 +1,26 @@
+  newComment:
+    post:
+      summary: New comment notification
+      description: Webhook sent when a new comment is created
+      operationId: onNewComment
+      requestBody:
+        description: Comment data sent to subscriber
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                event:
+                  type: string
+                  example: comment.created
+                timestamp:
+                  type: string
+                  format: date-time
+                data:
+                  $ref: '#/components/schemas/Comment'
+      responses:
+        '200':
+          description: Webhook received successfully
+        '400':
+          description: Bad request

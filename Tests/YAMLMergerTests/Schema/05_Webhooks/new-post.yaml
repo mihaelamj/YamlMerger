@@ -1,0 +1,26 @@
+  newPost:
+    post:
+      summary: New post notification
+      description: Webhook sent when a new post is published
+      operationId: onNewPost
+      requestBody:
+        description: Post data sent to subscriber
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                event:
+                  type: string
+                  example: post.published
+                timestamp:
+                  type: string
+                  format: date-time
+                data:
+                  $ref: '#/components/schemas/Post'
+      responses:
+        '200':
+          description: Webhook received successfully
+        '400':
+          description: Bad request

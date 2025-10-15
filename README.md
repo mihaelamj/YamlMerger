@@ -2,12 +2,14 @@
 
 A Swift package for merging multiple YAML files from subdirectories into a single combined file.
 
-## Features
+## How It Works
 
-- Recursively scans subdirectories for YAML files (.yaml or .yml extensions)
-- Sorts subdirectories and files alphabetically
-- Merges content in a predictable order
-- Outputs a single combined YAML file
+YAMLMerger recursively scans subdirectories for YAML files and merges them in a predictable order:
+
+1. Folders are processed in numerical order (01 → 02 → 03 → ...)
+2. Within each folder, `__*.yaml` files are merged first (due to `__` prefix)
+3. All additional YAML files are then merged in alphabetical order
+4. The result is a single, properly structured OpenAPI specification file
 
 ## Directory Structure for OpenAPI Schemas
 
@@ -28,174 +30,282 @@ Schema/
 Place your distinct YAML files into the corresponding folders:
 
 #### 01_Info/
-Add files containing OpenAPI metadata and general information.
+OpenAPI metadata and general information.
 
-Example (`__info.yaml`):
 ```yaml
+# __info.yaml (header file)
 openapi: 3.0.0
 info:
-  title: My API
+
+# api-info.yaml
+  title: OpenAPI Generation Demo
   version: 1.0.0
-  description: A comprehensive REST API for managing resources
-  contact:
-    name: API Support
-    email: support@example.com
-  license:
-    name: Apache 2.0
-    url: https://www.apache.org/licenses/LICENSE-2.0.html
+  description: Demonstration of OpenAPI specification generation using YAMLMerger
 ```
 
 #### 02_Servers/
-Add server configuration files (production, staging, development URLs).
+API server URLs and configurations.
 
-Example (`__servers.yaml`):
 ```yaml
-servers:
-  - url: https://api.example.com/v1
-    description: Production server
-  - url: https://staging-api.example.com/v1
-    description: Staging server
-  - url: http://localhost:8000/v1
-    description: Development server
+# dummyjson-server.yaml
+  - url: https://dummyjson.com
+    description: DummyJSON API Server
+
+# local-server.yaml
+  - url: http://localhost:8080
+    description: Local development server
 ```
 
 #### 03_Tags/
-Add tag definitions to organize and group your API endpoints.
+Tag definitions for organizing endpoints.
 
-Example (`__tags.yaml`):
 ```yaml
-tags:
+# tags.yaml
+  - name: auth
+    description: Authentication operations
   - name: users
     description: User management operations
+  - name: posts
+    description: Post management operations
   - name: products
     description: Product catalog operations
-  - name: orders
-    description: Order processing and management
 ```
 
 #### 04_Paths/
-Add individual endpoint definition files (one per endpoint or grouped logically).
+API endpoint definitions (one file per resource).
 
-Example (`users.yaml`):
 ```yaml
-  /users:
-    get:
-      tags:
-        - users
-      summary: List all users
-      responses:
-        '200':
-          description: Successful response
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/User'
+# auth.yaml
+  /auth/login:
     post:
-      tags:
-        - users
-      summary: Create a new user
+      operationId: loginUser
+      tags: [auth]
+      summary: User login
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UserInput'
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Successful authentication
+
+# users.yaml
+  /users:
+    get:
+      operationId: getAllUsers
+      tags: [users]
+      summary: Get all users
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 30
+      responses:
+        '200':
+          description: Successful response
+    post:
+      operationId: createUser
+      tags: [users]
+      summary: Add a new user
+      security:
+        - bearerAuth: []
       responses:
         '201':
           description: User created successfully
 ```
 
-#### 05_Webhooks/
-Add webhook definitions for callbacks your API sends (OpenAPI 3.1+).
+**Try it:**
+```bash
+# Auth - Login
+curl -X POST https://dummyjson.com/auth/login \
+  -H 'Content-Type: application/json' \
+  -d '{"username": "emilys", "password": "emilyspass"}'
 
-Example (`order-events.yaml`):
+# Users - Get all
+curl https://dummyjson.com/users?limit=5
+
+# Users - Get single
+curl https://dummyjson.com/users/1
+
+# Posts - Get all
+curl https://dummyjson.com/posts?limit=5
+
+# Posts - Get single
+curl https://dummyjson.com/posts/1
+
+# Products - Get all
+curl https://dummyjson.com/products?limit=5
+
+# Products - Get single
+curl https://dummyjson.com/products/1
+
+# Carts - Get all
+curl https://dummyjson.com/carts?limit=5
+
+# Carts - Get single
+curl https://dummyjson.com/carts/1
+
+# Todos - Get all
+curl https://dummyjson.com/todos?limit=5
+
+# Todos - Get single
+curl https://dummyjson.com/todos/1
+
+# Comments - Get all
+curl https://dummyjson.com/comments?limit=5
+
+# Comments - Get single
+curl https://dummyjson.com/comments/1
+```
+
+#### 05_Webhooks/
+Webhook/callback definitions (OpenAPI 3.1+).
+
 ```yaml
-  orderStatusChanged:
+# new-comment.yaml
+  newComment:
     post:
-      summary: Order status change notification
+      operationId: onNewComment
+      summary: New comment notification
       requestBody:
         content:
           application/json:
             schema:
               type: object
               properties:
-                orderId:
+                event:
                   type: string
-                status:
-                  type: string
+                  example: comment.created
                 timestamp:
                   type: string
                   format: date-time
-      responses:
-        '200':
-          description: Webhook received successfully
+                data:
+                  $ref: '#/components/schemas/Comment'
+
+# new-post.yaml
+  newPost:
+    post:
+      operationId: onNewPost
+      summary: New post notification
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                event:
+                  type: string
+                  example: post.published
+                data:
+                  $ref: '#/components/schemas/Post'
+```
+
+**Test webhook receiver:**
+```bash
+# Start a local webhook receiver (requires nc)
+nc -l 8080
+
+# In another terminal, simulate a webhook POST
+curl -X POST http://localhost:8080/webhook \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "event": "comment.created",
+    "timestamp": "2025-10-15T10:30:00Z",
+    "data": {
+      "id": 1,
+      "body": "Great post!",
+      "postId": 1,
+      "likes": 5,
+      "user": {
+        "id": 1,
+        "username": "emilys",
+        "fullName": "Emily Johnson"
+      }
+    }
+  }'
 ```
 
 #### 06_Components/
-Add reusable schema definitions, response objects, parameters, security schemes, etc.
+Reusable schema definitions (one per file).
 
-Example (`User.yaml`):
 ```yaml
-  User:
-    type: object
-    required:
-      - id
-      - email
-      - name
-    properties:
-      id:
-        type: string
-        format: uuid
-      email:
-        type: string
-        format: email
-      name:
-        type: string
-      createdAt:
-        type: string
-        format: date-time
+# LoginRequest.yaml
+      LoginRequest:
+        type: object
+        required: [username, password]
+        properties:
+          username:
+            type: string
+          password:
+            type: string
+            format: password
+
+# User.yaml
+      User:
+        type: object
+        properties:
+          id:
+            type: integer
+          firstName:
+            type: string
+          lastName:
+            type: string
+          email:
+            type: string
+            format: email
+
+# Post.yaml
+      Post:
+        type: object
+        properties:
+          id:
+            type: integer
+          title:
+            type: string
+          body:
+            type: string
+          userId:
+            type: integer
 ```
 
-#### 07_Security/
-Add top-level security requirements that apply across the API.
 
-Example (`__securitySchemes.yaml`):
+#### 07_Security/
+Security schemes and requirements.
+
 ```yaml
-  securitySchemes:
+# bearer-auth.yaml
     bearerAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT
-    apiKey:
-      type: apiKey
-      in: header
-      name: X-API-Key
-security:
-  - bearerAuth: []
+      description: JWT token obtained from /auth/login endpoint
+```
+
+**Try it:**
+```bash
+# Get token
+TOKEN=$(curl -s -X POST https://dummyjson.com/auth/login \
+  -H 'Content-Type: application/json' \
+  -d '{"username": "emilys", "password": "emilyspass"}' \
+  | grep -o '"accessToken":"[^"]*"' | cut -d'"' -f4)
+
+# Use token to get authenticated user
+curl https://dummyjson.com/auth/me \
+  -H "Authorization: Bearer $TOKEN"
 ```
 
 #### 08_ExternalDocs/
-Add links to external documentation.
+Links to external documentation.
 
-Example (`__externalDocs.yaml`):
 ```yaml
+# __externalDocs.yaml
 externalDocs:
-  description: Find more information in our documentation
-  url: https://docs.example.com/api
+  description: DummyJSON Documentation
+  url: https://dummyjson.com/docs
 ```
-
-The numeric prefixes ensure subdirectories are processed in the correct order during merging.
-
-### How the Merger Works
-
-Each folder contains a `__*.yaml` file (e.g., `__paths.yaml`, `__components.yaml`) that serves as a section header. Due to the `__` prefix, these files are sorted and merged first within each folder, followed by all other YAML files in alphabetical order. This ensures:
-
-1. Folders are processed in numerical order (01 → 02 → 03 → ...)
-2. Within each folder, the section header (`__*.yaml`) is merged first
-3. All additional YAML files in the folder are then merged in alphabetical order
-4. The result is a single, properly structured OpenAPI specification file
 
 ## Usage
 
